@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'checkstyle'
+    // NOTE: external plugin version is specified in implementation dependency artifact of the project's build file
+    id 'jacoco'
+}
+
+
+
+eclipse {
+    classpath {
+       downloadSources=true
+       downloadJavadoc = true
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+
+checkstyle {
+    configFile = file("${rootDir}/config/checkstyle.xml")
+    sourceSets = []
+}
+
+
+test
+{
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+    
+}
