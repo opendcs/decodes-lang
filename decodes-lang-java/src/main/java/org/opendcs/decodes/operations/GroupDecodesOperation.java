@@ -1,6 +1,7 @@
 package org.opendcs.decodes.operations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.opendcs.decodes.exec.DecodesExecutionContext;
@@ -19,7 +20,7 @@ public class GroupDecodesOperation extends AbstractDecodesOperation
 
     public List<DecodesOperation> getOperations()
     {
-        return this.operations;
+        return Collections.unmodifiableList(this.operations);
     }
 
     public void addOperation(DecodesOperation operation)

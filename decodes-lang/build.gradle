@@ -42,5 +42,5 @@ task grun(type: JavaExec) {
     args += "-trace"
     args += "-diagnostics"
     args += "-gui"
-    args += project.findProperty("shefFile") ?: "src/test/resources/basic_test.script"
+    args += project.findProperty("decodesFile") ?: "src/test/resources/basic_test.script"
 }

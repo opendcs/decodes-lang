@@ -44,9 +44,10 @@ public interface DecodesExecutionContext<T>
 
     /**
      * Add a new determined time based variable to the stored collection.
+     * @param sensor which sensor number to assosciate this input to
      * @param zdt Current Date Time, with time zone
      * @param value value, usually a double but any type your DataCollection implementation supports
      *              can be used.
      */
-    void addVariable(ZonedDateTime zdt, Object value); // maybe expand this out
+    void addVariable(int sensor, ZonedDateTime zdt, Object value); // maybe expand this out
 }

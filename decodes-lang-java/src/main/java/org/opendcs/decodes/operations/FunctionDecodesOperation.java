@@ -24,6 +24,9 @@ public class FunctionDecodesOperation extends AbstractDecodesOperation
     public void execute(DecodesExecutionContext<?> context)
     {
         // lookup the actual impl and execute
-        System.out.println("Executing " + this.toString());
+        for (int i = 0; i < repeat; i++)
+        {
+            System.out.println("Executing " + this.toString() + ", interation = " + i);
+        }
     }
 }

@@ -1,24 +1,28 @@
 package org.opendcs.decodes;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.opendcs.decodes.operations.AbstractDecodesOperation;
 import org.opendcs.decodes.operations.SKIP_DIRECTION;
 import org.opendcs.decodes.operations.SetPositionOperation;
 import org.opendcs.decodes.operations.SkipCharacterOperation;
+import org.opendcs.decodes.exec.DecodesExecutionContext;
 import org.opendcs.decodes.operations.DecodesOperation;
 import org.opendcs.decodes.operations.FunctionDecodesOperation;
 import org.opendcs.decodes.operations.GroupDecodesOperation;
+import org.opendcs.decodes.operations.RedirectDecodesOperation;
 import org.opendcs.decodes.operations.SkipLineOperation;
 import org.opendcs.decodes.operations.SkipWhiteSpaceOperation;
 import org.opendcs.decodes.parser.decodesBaseListener;
@@ -29,6 +33,7 @@ import org.opendcs.decodes.parser.decodesParser.FunctionContext;
 import org.opendcs.decodes.parser.decodesParser.GroupContext;
 import org.opendcs.decodes.parser.decodesParser.OperationContext;
 import org.opendcs.decodes.parser.decodesParser.PositionContext;
+import org.opendcs.decodes.parser.decodesParser.RedirectContext;
 
 public class ScriptCompiler extends decodesBaseListener
 {
@@ -121,6 +126,16 @@ public class ScriptCompiler extends decodesBaseListener
     }
 
     @Override
+    public void exitRedirect(RedirectContext ctx)
+    {
+        if (!currentGroups.isEmpty())
+        {
+            throw new RuntimeException("Can't redirect from within a group using the redirect command.");
+        }
+        currentList.add(new RedirectDecodesOperation(ctx.IDENTIFIER().getText()));
+    }
+
+    @Override
     public void exitGroup(GroupContext ctx)
     {
         var group = currentGroups.pop();
@@ -131,9 +146,9 @@ public class ScriptCompiler extends decodesBaseListener
     }
     
 
-    public LinkedHashMap<String, List<DecodesOperation>> getOperations()
+    public CompiledScript getScript()
     {
-        return this.decodesScript;
+        return new CompiledScript(decodesScript);
     }
 
     public static void main(String[] args) throws Exception
@@ -149,15 +164,39 @@ public class ScriptCompiler extends decodesBaseListener
         var listener = new ScriptCompiler();
         ParseTreeWalker.DEFAULT.walk(listener, decodesScript);
         
-        var ops = listener.getOperations();
+        var script = listener.getScript();
+        System.out.println(script);        
 
-        ops.forEach((k,v) ->
+        final String dataStr = """
+                15.4 17.2 18.6 19.2
+                VB: 12.1                
+                """.trim();
+
+        
+
+        script.execute(new DecodesExecutionContext<Map<Integer,Object>>()
         {
-            System.out.println(k);
-            v.forEach(op ->
+            ByteBuffer data = ByteBuffer.wrap(dataStr.getBytes(StandardCharsets.UTF_8));
+            HashMap<Integer, Object> collection = new HashMap<>();
+
+            @Override
+            public ByteBuffer getMessageData() 
             {
-                System.out.println("\t" + op.toString());
-            });
+                return data;
+            }
+
+            @Override
+            public Map<Integer, Object> getDataCollection()
+            {
+                return collection;
+            }
+
+            @Override
+            public void addVariable(int sensor, ZonedDateTime zdt, Object value) 
+            {
+                System.out.println("Would add " + zdt + ", " + value);
+            }
+            
         });
     }
 }
