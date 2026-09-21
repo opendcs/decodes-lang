@@ -6,15 +6,6 @@ plugins {
     id 'jacoco'
 }
 
-
-
-eclipse {
-    classpath {
-       downloadSources=true
-       downloadJavadoc = true
-    }
-}
-
 java {
     withSourcesJar()
     withJavadocJar()

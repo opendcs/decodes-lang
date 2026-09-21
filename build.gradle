@@ -1,0 +1,82 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:7.3.0.8198"
+    }
+}
+
+plugins {
+    id 'jacoco'
+}
+
+apply plugin: "org.sonarqube"
+
+sonar {
+        properties {
+            property "sonar.projectKey", "opendcs_decodes-lang"
+            property "sonar.organization", "opendcs"
+            property "sonar.host.url", "https://sonarcloud.io"
+            property "sonar.pullrequest.provider", "GitHub"
+            property "sonar.pullrequest.github.repository", "opendcs/decodes-lang"
+        property "sonar.projectVersion", sonarVersion()
+    }
+}
+
+// This may not be required due to there being less complexity within this repository than the main code.
+// However, we do know this works and we may include other languages so I think it's worth keeping for now.
+tasks.register("codeCoverageReport", JacocoReport) { jr ->
+    subprojects { subproject ->
+        subproject.plugins.withType(JacocoPlugin).each {
+            subproject.tasks.matching({t -> t.extensions.findByType(JacocoTaskExtension)}).each { testTask ->
+                if(testTask.extensions.getByType(JacocoTaskExtension).isEnabled()) {
+                    System.out.println("Setting execution data for ${testTask}")
+                    jr.sourceSets subproject.sourceSets.main
+                    jr.sourceDirectories.setFrom(subproject.sourceSets.main.allSource.srcDirs)
+                    jr.classDirectories.setFrom(subproject.sourceSets.main.output)
+                    jr.executionData(testTask)
+                }
+            }
+        }
+    }
+
+    // enable the different report types (html, xml, csv)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    def excludes = []
+    jr.sourceDirectories.setFrom(fileTree(dir: "${rootDir}", include: "**/src/**/main/java/**", exclude: "build/**/codeCoverageReport.xml"))
+    jr.classDirectories.setFrom(fileTree(dir: "${rootDir}", include: "**/build/**/classes/**", excludes: excludes))
+
+}
+
+subprojects {
+    if (name != "opendcs-web-ui-react") {
+        sonar {
+            properties {
+                property "sonar.coverage.jacoco.xmlReportPaths", "$rootDir/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml,$rootDir/**/jacoco/**/*.xml"
+            }
+        }
+    }
+}
+
+
+import javax.inject.Inject
+
+interface InjectedExecOps {
+    @Inject //@javax.inject.Inject
+    ExecOperations getExecOps()
+}
+
+ext.sonarVersion = {
+    def stdout = new ByteArrayOutputStream()
+    def execOps = project.objects.newInstance(InjectedExecOps)
+    execOps.execOps.exec {
+        commandLine 'git', 'describe', '--tags', '--abbrev=0', "--always"
+        standardOutput = stdout
+    }
+    return stdout.toString().trim() + "+"
+}
