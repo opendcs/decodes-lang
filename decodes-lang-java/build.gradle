@@ -8,6 +8,10 @@ dependencies {
     // Should not depend on OpenDCS
     // OpenDCS API is... debatable.
     api(project(":decodes-lang"))
+
+    testImplementation enforcedPlatform(libs.junit.bom)
+    testImplementation(libs.bundles.junit)
+    testRuntimeOnly (libs.bundles.junit.platform)
 }
 
 

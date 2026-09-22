@@ -23,17 +23,6 @@ op: identifier=SKIP_LINE_FORWARD  # position
 
 repeat: NUMBER;
 
-
-// operation: repeat=repeatVal? identifier=SKIP_LINE_FORWARD  # position
-// 		 | repeat=repeatVal? identifier=SKIP_LINE_BACKWARD  # position
-// 		 | repeat=repeatVal? identifier=CHECK LEFT_PAREN argument ',' argument RIGHT_PAREN # check
-// 		 | repeat=repeatVal? identifier=IDENTIFIER LEFT_PAREN (argument (',' argument)*?)? RIGHT_PAREN # function
-// 		 | repeat=repeatVal? identifier=IDENTIFIER  # position
-// 		 | repeat=repeatVal? LEFT_PAREN (operation (OPERATION_SEPARATOR operation)*) RIGHT_PAREN # group
-// 		 ;
-
-// repeatVal: NUMBER;
-
 argument:  (IDENTIFIER | NUMBER | STRING | NUMBER_FORMAT);
 
 IDENTIFIER: (UPPER_LETTER | LOWER_LETTER) (
@@ -54,12 +43,13 @@ FIELD: [fF];
 LEFT_PAREN: '(';
 RIGHT_PAREN: ')';
 OPERATION_SEPARATOR: ',';
+SKIP_WS: WS -> skip;
 //NEWLINE: NEWLINE_CHAR;
 COMMENT: COMMENT_START .*? COMMENT_END;
 NUMBER: DIGIT DIGIT?;
 STRING: SINGLE_QUOTE .*? SINGLE_QUOTE;
 NUMBER_FORMAT: NUMBER (ALPHA STRING)?;
-SKIP_WS: WS -> skip;
+
 fragment COMMENT_END: (NEWLINE_CHAR | EOF);
 fragment COMMENT_START: '#';
 fragment WS: [ \t\n]+ | OTHER_NEWLINE_CHARS+ | NEWLINE_CHAR+;

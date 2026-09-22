@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -151,10 +152,15 @@ public class ScriptCompiler extends decodesBaseListener
         return new CompiledScript(decodesScript);
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        var stream = CharStreams.fromFileName(args[0]);
 
+    public static CompiledScript compile(CharSequence script)
+    {
+        var stream = CharStreams.fromString(script.toString());
+        return compile(stream, false);
+    }
+
+    private static CompiledScript compile(CharStream stream, boolean trace)
+    {
         var lexer = new decodesLexer(stream);
         var tokens = new CommonTokenStream(lexer);
         var parser = new decodesParser(tokens);
@@ -164,15 +170,20 @@ public class ScriptCompiler extends decodesBaseListener
         var listener = new ScriptCompiler();
         ParseTreeWalker.DEFAULT.walk(listener, decodesScript);
         
-        var script = listener.getScript();
+        return listener.getScript();
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        var stream = CharStreams.fromFileName(args[0]);
+        
+        var script = compile(stream, true);
         System.out.println(script);        
 
         final String dataStr = """
                 15.4 17.2 18.6 19.2
                 VB: 12.1                
                 """.trim();
-
-        
 
         script.execute(new DecodesExecutionContext<Map<Integer,Object>>()
         {

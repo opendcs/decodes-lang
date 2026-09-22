@@ -20,6 +20,11 @@ public final class RedirectDecodesOperation implements DecodesOperation
         return OPERATION_NAME;
     }
 
+    public String getTargetLabel()
+    {
+        return targetLabel;
+    }
+
     @Override
     public int repeat()
     {
