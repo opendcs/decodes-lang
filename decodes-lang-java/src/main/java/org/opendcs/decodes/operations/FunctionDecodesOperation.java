@@ -23,10 +23,12 @@ public class FunctionDecodesOperation extends AbstractDecodesOperation
     @Override
     public void execute(DecodesExecutionContext<?> context)
     {
+        System.out.println("***");
         // lookup the actual impl and execute
         for (int i = 0; i < repeat; i++)
         {
             System.out.println("Executing " + this.toString() + ", interation = " + i);
         }
+        System.out.println("***");
     }
 }

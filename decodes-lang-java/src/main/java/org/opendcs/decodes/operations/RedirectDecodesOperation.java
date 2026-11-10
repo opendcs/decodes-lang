@@ -44,7 +44,8 @@ public final class RedirectDecodesOperation implements DecodesOperation
         // However, this is not the only 'redirect', the whole Scan thing, or perhaps custom things need to
         // also be able to "jump" to something else. The consider is nested elements. It would just be
         // good to do so *without* throwing.
-        System.out.println("Would redirect... somehow, maybe something with the execution context?");
+        //System.out.println("Would redirect... somehow, maybe something with the execution context?");
+        context.currentLabel(targetLabel);
     }
     
 }

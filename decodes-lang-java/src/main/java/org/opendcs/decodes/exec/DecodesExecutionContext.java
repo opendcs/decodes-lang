@@ -3,6 +3,12 @@ package org.opendcs.decodes.exec;
 import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 
+/**
+ * Storage for the overal statemachine that is an executing decodes script.
+ * DecodesExecutionContext
+ * @param <T> Parameter caller is required to set, Type is used in your implementation
+ *            to set the data collection.
+ */
 public interface DecodesExecutionContext<T>
 {
     /**
@@ -27,6 +33,10 @@ public interface DecodesExecutionContext<T>
     {
         return getMessageData().position();
     }
+
+    String currentLabel();
+
+    void currentLabel(String label);
     
     /**
      * Retrive the byte buffer view to retrieve data.

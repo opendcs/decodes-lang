@@ -173,41 +173,4 @@ public class ScriptCompiler extends decodesBaseListener
         return listener.getScript();
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        var stream = CharStreams.fromFileName(args[0]);
-        
-        var script = compile(stream, true);
-        System.out.println(script);        
-
-        final String dataStr = """
-                15.4 17.2 18.6 19.2
-                VB: 12.1                
-                """.trim();
-
-        script.execute(new DecodesExecutionContext<Map<Integer,Object>>()
-        {
-            ByteBuffer data = ByteBuffer.wrap(dataStr.getBytes(StandardCharsets.UTF_8));
-            HashMap<Integer, Object> collection = new HashMap<>();
-
-            @Override
-            public ByteBuffer getMessageData() 
-            {
-                return data;
-            }
-
-            @Override
-            public Map<Integer, Object> getDataCollection()
-            {
-                return collection;
-            }
-
-            @Override
-            public void addVariable(int sensor, ZonedDateTime zdt, Object value) 
-            {
-                System.out.println("Would add " + zdt + ", " + value);
-            }
-            
-        });
-    }
 }

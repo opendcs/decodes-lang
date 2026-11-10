@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.opendcs.decodes.exec.DecodesExecutionContext;
+import org.opendcs.decodes.exec.ScriptExecutor;
 
 class CompiledScriptTest
 {
@@ -37,7 +38,7 @@ class CompiledScriptTest
             HG: 2x, f(s, a,5D' ', 1), 2f(s,a,5D' ',2) > TA
             TA: 2(2x, f(s,a,6D' ', 3))
               """.trim();
-        var  scriptCompiled = ScriptCompiler.compile(scriptIn);
+        var scriptCompiled = ScriptCompiler.compile(scriptIn);
 
         assertNotNull(scriptCompiled);
 
@@ -46,8 +47,8 @@ class CompiledScriptTest
         """.trim();
 
         var ctx = new TestContext(ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)));
-
-        scriptCompiled.execute(ctx);
+        System.out.println(scriptCompiled.toString());
+        ScriptExecutor.execute(scriptCompiled, ctx);
 
         assertFalse(ctx.collection.isEmpty());
 
@@ -56,7 +57,8 @@ class CompiledScriptTest
     public static class TestContext implements DecodesExecutionContext<Map<Integer, ArrayList<Object>>>
     {
         private final ByteBuffer data;
-        private Map<Integer, ArrayList<Object>> collection = new HashMap<>();
+        private final Map<Integer, ArrayList<Object>> collection = new HashMap<>();
+        private String currentLabel;
 
         public TestContext(ByteBuffer data)
         {
@@ -79,6 +81,18 @@ class CompiledScriptTest
         public void addVariable(int sensor, ZonedDateTime zdt, Object value)
         {
             collection.computeIfAbsent(sensor, s -> new ArrayList<>()).add(value);
+        }
+
+        @Override
+        public String currentLabel()
+        {
+            return currentLabel;
+        }
+
+        @Override
+        public void currentLabel(String label)
+        {
+            this.currentLabel = label;
         }
 
     }
