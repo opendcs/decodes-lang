@@ -26,6 +26,8 @@ public final class ScriptExecutor
             if (label != null && !currentLabel.equals(label))
             {
                 opStack.clear();
+                System.out.println("Changing label");
+                currentLabel=label;
                 opStack.addAll(toStack(script.getOperationsFor(label)));
             }
         }
@@ -34,6 +36,6 @@ public final class ScriptExecutor
 
     private static Deque<DecodesOperation> toStack(List<DecodesOperation> ops)
     {
-        return new ArrayDeque<>(ops.reversed());
+        return new ArrayDeque<>(ops);
     }
 }
