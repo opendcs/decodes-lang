@@ -11,5 +11,5 @@ public interface DecodesOperation
     int repeat();
 
     // execution method will be here later, right now we're just parsing the script.
-    void execute(DecodesExecutionContext<?> context);
+    void execute(DecodesExecutionContext context);
 }

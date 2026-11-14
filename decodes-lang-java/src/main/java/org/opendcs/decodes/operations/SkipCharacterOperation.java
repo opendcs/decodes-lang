@@ -22,9 +22,10 @@ public class SkipCharacterOperation extends AbstractDecodesOperation
     }
 
     @Override
-    public void execute(DecodesExecutionContext<?> context)
+    public void execute(DecodesExecutionContext context)
     {
-        context.getMessageData();
-        context.advancePosition(repeat*direction.multiplier);
+        int amount = repeat*direction.multiplier;
+        System.out.println("Skipping " + amount);
+        context.advancePosition(amount);
     }
 }

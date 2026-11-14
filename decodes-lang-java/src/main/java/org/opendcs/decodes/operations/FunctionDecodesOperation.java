@@ -3,6 +3,7 @@ package org.opendcs.decodes.operations;
 import java.util.List;
 
 import org.opendcs.decodes.exec.DecodesExecutionContext;
+import org.opendcs.decodes.functions.Field;
 
 public class FunctionDecodesOperation extends AbstractDecodesOperation
 {
@@ -21,14 +22,15 @@ public class FunctionDecodesOperation extends AbstractDecodesOperation
     }
 
     @Override
-    public void execute(DecodesExecutionContext<?> context)
+    public void execute(DecodesExecutionContext context)
     {
-        System.out.println("***");
+        System.out.println("***" + context.currentPosition());
         // lookup the actual impl and execute
+        var func = new Field();
         for (int i = 0; i < repeat; i++)
         {
-            System.out.println("Executing " + this.toString() + ", interation = " + i);
+            func.execute(context, arguments);
         }
-        System.out.println("***");
+        System.out.println("***"  + context.currentPosition());
     }
 }

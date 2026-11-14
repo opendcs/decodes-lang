@@ -12,8 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.opendcs.decodes.exec.DataBuilder;
 import org.opendcs.decodes.exec.DecodesExecutionContext;
 import org.opendcs.decodes.exec.ScriptExecutor;
+import org.opendcs.decodes.exec.DataBuilder.Position;
 
 class CompiledScriptTest
 {
@@ -36,64 +38,44 @@ class CompiledScriptTest
     {
         final String scriptIn = """
             HG: 2x, f(s, a,5D' ', 1), 2f(s,a,5D' ',2) > TA
-            TA: 2(2x, f(s,a,6D' ', 3))
+            TA: 2(2x, f(s,a,6, 3))
               """.trim();
         var scriptCompiled = ScriptCompiler.compile(scriptIn);
 
         assertNotNull(scriptCompiled);
 
         var data = """
-        xx5.1 1.223 12.5 xx123456  xx654321
-        """.trim();
+xx5.1 1.223 12.5 xx123456xx654321
+    """.stripTrailing();
 
-        var ctx = new TestContext(ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)));
         System.out.println(scriptCompiled.toString());
-        ScriptExecutor.execute(scriptCompiled, ctx);
+        var dataOut = ScriptExecutor.execute(scriptCompiled, ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)), new Data())
+                                    .build();
 
-        assertFalse(ctx.collection.isEmpty());
+        assertFalse(dataOut.data.isEmpty());
 
     }
 
-    public static class TestContext implements DecodesExecutionContext<Map<Integer, ArrayList<Object>>>
+    public static class Data implements DataBuilder<Data>
     {
-        private final ByteBuffer data;
-        private final Map<Integer, ArrayList<Object>> collection = new HashMap<>();
-        private String currentLabel;
+        public final Map<Integer, ArrayList<TimeValue>> data = new HashMap<>();
 
-        public TestContext(ByteBuffer data)
+        @Override
+        public void addValue(int sensor, ZonedDateTime dateTime, Object value, Position dataPosition)
         {
-            this.data = data;
+            var sensorData = data.computeIfAbsent(sensor, s -> new ArrayList<>());
+            sensorData.add(new TimeValue(dateTime, (Double)value, dataPosition));
         }
 
         @Override
-        public ByteBuffer getMessageData()
+        public Data build()
         {
-            return this.data;
+            return this;
         }
 
-        @Override
-        public Map<Integer, ArrayList<Object>> getDataCollection()
-        {
-            return this.collection;
-        }
+    }
 
-        @Override
-        public void addVariable(int sensor, ZonedDateTime zdt, Object value)
-        {
-            collection.computeIfAbsent(sensor, s -> new ArrayList<>()).add(value);
-        }
-
-        @Override
-        public String currentLabel()
-        {
-            return currentLabel;
-        }
-
-        @Override
-        public void currentLabel(String label)
-        {
-            this.currentLabel = label;
-        }
-
+    public static record TimeValue(ZonedDateTime time, Double value, Position dataPosition)
+    {
     }
 }

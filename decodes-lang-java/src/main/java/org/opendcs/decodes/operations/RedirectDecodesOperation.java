@@ -38,7 +38,7 @@ public final class RedirectDecodesOperation implements DecodesOperation
     }
 
     @Override
-    public void execute(DecodesExecutionContext<?> context) 
+    public void execute(DecodesExecutionContext context) 
     {
         // This *should* be the last command on the line, so it's fairly easy to just change what set we're using
         // However, this is not the only 'redirect', the whole Scan thing, or perhaps custom things need to

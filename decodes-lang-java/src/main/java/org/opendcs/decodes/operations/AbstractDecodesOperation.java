@@ -33,5 +33,5 @@ public abstract class AbstractDecodesOperation implements DecodesOperation
     }
 
     @Override 
-    public abstract void execute(DecodesExecutionContext<?> context);
+    public abstract void execute(DecodesExecutionContext context);
 }

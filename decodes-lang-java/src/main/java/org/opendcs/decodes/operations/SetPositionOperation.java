@@ -18,7 +18,7 @@ public class SetPositionOperation extends AbstractDecodesOperation
     }
 
     @Override
-    public void execute(DecodesExecutionContext<?> context)
+    public void execute(DecodesExecutionContext context)
     {
         // determine the start of this line (previous newline?) and advance
         // from there.

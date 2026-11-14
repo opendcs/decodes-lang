@@ -21,7 +21,7 @@ public class SkipLineOperation extends AbstractDecodesOperation
     }
 
     @Override
-    public void execute(DecodesExecutionContext<?> context)
+    public void execute(DecodesExecutionContext context)
     {
         System.out.println("fine the next line");
         

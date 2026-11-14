@@ -39,7 +39,7 @@ public class GroupDecodesOperation extends AbstractDecodesOperation
     }
 
     @Override
-    public void execute(DecodesExecutionContext<?> context)
+    public void execute(DecodesExecutionContext context)
     {
         for (int i = 0; i < repeat; i++)
         {
