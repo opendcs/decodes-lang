@@ -49,11 +49,18 @@ xx5.1 1.223 12.5 xx123456xx654321
     """.stripTrailing();
 
         System.out.println(scriptCompiled.toString());
-        var dataOut = ScriptExecutor.execute(scriptCompiled, ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)), new Data())
+        var dataOut = ScriptExecutor.execute(scriptCompiled, ByteBuffer.wrap(data.getBytes(StandardCharsets.US_ASCII)), new Data())
                                     .build();
 
         assertFalse(dataOut.data.isEmpty());
-
+        dataOut.data.forEach((k,v) ->
+        {
+            System.out.println(k);
+            v.forEach(tv ->
+            {
+                System.out.println("\t" + tv);
+            });
+        });
     }
 
     public static class Data implements DataBuilder<Data>
@@ -64,7 +71,7 @@ xx5.1 1.223 12.5 xx123456xx654321
         public void addValue(int sensor, ZonedDateTime dateTime, Object value, Position dataPosition)
         {
             var sensorData = data.computeIfAbsent(sensor, s -> new ArrayList<>());
-            sensorData.add(new TimeValue(dateTime, (Double)value, dataPosition));
+            sensorData.add(new TimeValue(dateTime, value, dataPosition));
         }
 
         @Override
@@ -75,7 +82,7 @@ xx5.1 1.223 12.5 xx123456xx654321
 
     }
 
-    public static record TimeValue(ZonedDateTime time, Double value, Position dataPosition)
+    public static record TimeValue(ZonedDateTime time, Object value, Position dataPosition)
     {
     }
 }
